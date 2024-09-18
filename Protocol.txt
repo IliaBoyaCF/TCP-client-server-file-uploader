@@ -1,0 +1,22 @@
+UploadRequest {
+    2 : fileNameLength
+    [1 - 4096] : fileName
+    8 : fileLength
+}
+
+UploadResponse {
+    1 : response [0 - ACCEPTED, 1 - NO_SPACE, 2 - REFUSED]
+}
+
+FinishResponse {
+    1 : response [0 - SUCCESS, 1 - FAILED]
+}
+
+Protocol description:
+    - Upon establishing TCP connection, client sends UploadRequest message, then waits for response.
+    - Server reads request and decides whether it can upload this file or not and replies with the
+    corresponding UploadResponse.
+    - If UploadResponse answers with ACCEPTED, then client starts to send file data via TCP connection.
+    - When transmission is finished whether because of reaching end of stream or getting an error, server
+    sends FinishResponse to a client and then closes the connection.
+    - If UploadResponse answers with other than ACCEPTED, then server closes the connection.

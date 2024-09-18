@@ -1,2 +1,11 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿using Server.Protocol;
+
+namespace Server;
+
+public class EntryPoint
+{
+    public static void Main(string[] args)
+    {
+        
+    }
+}
