@@ -16,6 +16,7 @@ public class Session : ISession
     public Session(IPEndPoint server)
     {
         _socket = new(server.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+        _socket.Connect(server);
         _fileSystemOperator = new FileSystemOperator();
     }
 

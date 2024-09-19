@@ -13,3 +13,10 @@ D:\IDE Projects\VisualStudio\TCP-client-server-uploader\Client\obj\Debug\net8.0\
 D:\IDE Projects\VisualStudio\TCP-client-server-uploader\Client\obj\Debug\net8.0\Client.pdb
 D:\IDE Projects\VisualStudio\TCP-client-server-uploader\Client\obj\Debug\net8.0\Client.genruntimeconfig.cache
 D:\IDE Projects\VisualStudio\TCP-client-server-uploader\Client\obj\Debug\net8.0\ref\Client.dll
+D:\IDE Projects\VisualStudio\TCP-client-server-uploader\Client\bin\Debug\net8.0\Server.deps.json
+D:\IDE Projects\VisualStudio\TCP-client-server-uploader\Client\bin\Debug\net8.0\Server.runtimeconfig.json
+D:\IDE Projects\VisualStudio\TCP-client-server-uploader\Client\bin\Debug\net8.0\Server.exe
+D:\IDE Projects\VisualStudio\TCP-client-server-uploader\Client\bin\Debug\net8.0\Server.dll
+D:\IDE Projects\VisualStudio\TCP-client-server-uploader\Client\bin\Debug\net8.0\Server.pdb
+D:\IDE Projects\VisualStudio\TCP-client-server-uploader\Client\obj\Debug\net8.0\Client.csproj.AssemblyReference.cache
+D:\IDE Projects\VisualStudio\TCP-client-server-uploader\Client\obj\Debug\net8.0\Client.csproj.Up2Date
