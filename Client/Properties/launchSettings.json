@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Server": {
+      "commandName": "Project",
+      "workingDirectory": "D:\\IDE Projects\\VisualStudio\\TCP-client-server-uploader"
+    }
+  }
+}
