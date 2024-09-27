@@ -23,7 +23,7 @@ public class Server : IRunnable
         _sessions.RemoveAll((session) =>
         {
             IServerSession.DownloadInfo info = session.GetDownloadInfo();
-            Console.WriteLine("Downloading file from: {0}; current speed: {1}; average speed: {2}",
+            Console.WriteLine("Downloading file from: {0}\n current speed: {1:N2}; average speed: {2:N2}",
                 session.GetRemoteAddress(), FormatSpeed(info.CurrentSpeed), FormatSpeed(info.AverageSessionSpeed));
             return session.CurrentState == IServerSession.State.CLOSED;
         });

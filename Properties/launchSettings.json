@@ -1,13 +1,17 @@
 {
   "profiles": {
-    "TCP-client-server-uploader": {
+    "NoArgs": {
       "commandName": "Project",
-      "commandLineArgs": "-c Protocol.txt 192.168.0.52 30000"
+      "workingDirectory": "D:\\IDE Projects\\VisualStudio\\client-server\\TCP-client-server-uploader"
     },
-    "Профиль 1": {
+    "Server": {
       "commandName": "Project",
       "commandLineArgs": "-s 30000",
       "workingDirectory": "D:\\IDE Projects\\VisualStudio\\client-server\\TCP-client-server-uploader"
+    },
+    "Client": {
+      "commandName": "Project",
+      "commandLineArgs": "-c Protocol.txt 192.168.0.52 30000"
     }
   }
 }

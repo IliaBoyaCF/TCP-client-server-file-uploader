@@ -10,7 +10,7 @@ public class Program
         CommandLineArguments commandLineArguments = parser.ParseArguments(args);
         if (commandLineArguments.AskedForHelpInfo)
         {
-            Console.WriteLine("Asked for help");
+            Console.WriteLine(CommandLineArguments.s_HelpInfo);
             return;
         }
         switch (commandLineArguments.Mode)
