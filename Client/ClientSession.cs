@@ -12,11 +12,6 @@ public class ClientSession : Session, IClientSession
 
     private readonly FileInfo _file;
 
-    //public ClientSession(IPEndPoint server) : base(new Socket(server.AddressFamily, SocketType.Stream, ProtocolType.Tcp), new ClientFileSystemOperator())
-    //{
-    //    _socket.Connect(server);
-    //}
-
     public ClientSession(CommandLineArguments commandLineArguments) : base(new Socket(commandLineArguments.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp), new ClientFileSystemOperator())
     {
         IPEndPoint server = new(commandLineArguments.Address, commandLineArguments.Port);
@@ -79,7 +74,7 @@ public class ClientSession : Session, IClientSession
         {
             throw new Exception("Session is not ready to upload file.");
         }
-        const int bufferSize = 1024;
+        const int bufferSize = 4 * 1024;
         byte[] buffer = new byte[bufferSize];
         long sentData = 0;
         using Stream fileStream = _fileSystemOperator.GetStream(IFileSystemOperator.Mode.READ);

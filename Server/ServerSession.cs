@@ -21,6 +21,8 @@ public class ServerSession : Session, IServerSession
         private double _totalReceivedBytes;
         private double _lastReceivedBytes;
 
+        private readonly object _lock = new object();
+
         public void Start()
         {
             stopwatch.Start();
@@ -30,31 +32,38 @@ public class ServerSession : Session, IServerSession
 
         public void GotBytes(long bytes)
         {
-            _lastReceivedBytesTime = stopwatch.Elapsed.TotalMicroseconds;
-            _lastReceivedBytes = bytes;
-            _totalReceivedBytes += bytes;
+            lock (_lock)
+            {
+                _lastReceivedBytesTime = stopwatch.Elapsed.TotalMicroseconds;
+                _lastReceivedBytes = bytes;
+                _totalReceivedBytes += bytes;
+            }
         }
 
         public IServerSession.DownloadInfo GetDownloadInfo()
         {
-            double currentTime;
-            if (_downloadEndTime != 0)
+            lock (_lock)
             {
-                currentTime = _downloadEndTime;
-            }
-            else
-            {
-                currentTime = stopwatch.Elapsed.TotalMicroseconds;
-            }
-            double currentInterval = currentTime - _lastReceivedBytesTime;
-            double totalInterval = currentTime - _downloadStartTime;
+                double currentTime;                
+                if (_downloadEndTime != 0)
+                {
+                    currentTime = _downloadEndTime;
+                }
+                else
+                {
+                    currentTime = stopwatch.Elapsed.TotalMicroseconds;
+                }
+                double currentInterval = currentTime - _lastReceivedBytesTime;
+                double totalInterval = currentTime - _downloadStartTime;
 
-            const double microsecToSecFactor = 1_000.0 * 1_000.0;
+                const double microsecToSecFactor = 1_000.0 * 1_000.0;
 
-            double currentSpeed = currentInterval == 0 ? double.PositiveInfinity : microsecToSecFactor * _lastReceivedBytes / currentInterval;
-            double averageSpeed = totalInterval == 0 ? double.PositiveInfinity : microsecToSecFactor * _totalReceivedBytes / totalInterval;
-            return new IServerSession.DownloadInfo(currentSpeed,
-                averageSpeed);
+                double currentSpeed = currentInterval == 0 ? double.PositiveInfinity : 
+                    microsecToSecFactor * _lastReceivedBytes / currentInterval;
+                double averageSpeed = totalInterval == 0 ? double.PositiveInfinity : 
+                    microsecToSecFactor * _totalReceivedBytes / totalInterval;
+                return new IServerSession.DownloadInfo(currentSpeed, averageSpeed);
+            }
         }
 
         public bool IsFinished()
@@ -169,7 +178,7 @@ public class ServerSession : Session, IServerSession
         {
             throw new Exception("Session is not ready to download file.");
         }
-        const int bufferSize = 1024;
+        const int bufferSize = 4 * 1024;
         byte[] buffer = new byte[bufferSize];
         long receivedData = 0;
         using Stream fileStream = _fileSystemOperator.GetStream(IFileSystemOperator.Mode.WRITE);
