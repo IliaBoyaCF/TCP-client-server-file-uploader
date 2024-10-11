@@ -1,5 +1,4 @@
 ﻿using ClientServerApp.Protocol;
-using System.Buffers;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
@@ -21,12 +20,12 @@ public class ServerSession : Session, IServerSession
         private double _totalReceivedBytes;
         private double _lastReceivedBytes;
 
-        private readonly object _lock = new object();
+        private readonly object _lock = new();
 
         public void Start()
         {
             stopwatch.Start();
-            _downloadStartTime = stopwatch.Elapsed.TotalMicroseconds;
+            _downloadStartTime = stopwatch.ElapsedTicks / (TimeSpan.TicksPerMillisecond / 1000);
             _lastReceivedBytesTime = _downloadStartTime;
         }
 
@@ -34,7 +33,7 @@ public class ServerSession : Session, IServerSession
         {
             lock (_lock)
             {
-                _lastReceivedBytesTime = stopwatch.Elapsed.TotalMicroseconds;
+                _lastReceivedBytesTime = stopwatch.ElapsedTicks / (TimeSpan.TicksPerMillisecond / 1000);
                 _lastReceivedBytes = bytes;
                 _totalReceivedBytes += bytes;
             }
@@ -51,12 +50,12 @@ public class ServerSession : Session, IServerSession
                 }
                 else
                 {
-                    currentTime = stopwatch.Elapsed.TotalMicroseconds;
+                    currentTime = stopwatch.ElapsedTicks / (TimeSpan.TicksPerMillisecond / 1000);
                 }
                 double currentInterval = currentTime - _lastReceivedBytesTime;
                 double totalInterval = currentTime - _downloadStartTime;
 
-                const double microsecToSecFactor = 1_000.0 * 1_000.0;
+                const double microsecToSecFactor = 1_000 * 1_000;
 
                 double currentSpeed = currentInterval == 0 ? double.PositiveInfinity : 
                     microsecToSecFactor * _lastReceivedBytes / currentInterval;
@@ -73,7 +72,7 @@ public class ServerSession : Session, IServerSession
 
         public void Stop()
         {
-            _downloadEndTime = stopwatch.Elapsed.TotalMicroseconds; ;
+            _downloadEndTime = stopwatch.Elapsed.TotalMilliseconds; ;
             stopwatch.Stop();
         }
 
@@ -104,14 +103,14 @@ public class ServerSession : Session, IServerSession
         if (!((ServerFileSystemOperator)_fileSystemOperator).CanSaveFile(uploadRequest.FileSize))
         {
             SendUploadResponse(new UploadResponse(UploadResponse.UploadResponseValue.NO_SPACE));
-            Dispose();
+            _currentState = IServerSession.State.CLOSED;
             return;
         }
         SendUploadResponse(new UploadResponse(UploadResponse.UploadResponseValue.ACCEPTED));
         _currentState = IServerSession.State.DOWNLOADING_FILE;
         FinishResponse finishResponse = DownloadFile(uploadRequest);
         SendFinishResponse(finishResponse);
-        Dispose();
+        _currentState = IServerSession.State.CLOSED;
     }
 
     public override void Dispose()
@@ -122,14 +121,12 @@ public class ServerSession : Session, IServerSession
 
     public UploadRequest ReceiveUploadRequest()
     {
-        ArrayBufferWriter<byte> arrayBufferWriter = new();
         byte[] fileNameLengthBytes = ReceiveMessageFixedSize(sizeof(short));
-        int fileNameLength = BitConverter.ToInt16(fileNameLengthBytes);
-        arrayBufferWriter.Write(fileNameLengthBytes);
+        int fileNameLength = BitConverter.ToInt16(fileNameLengthBytes, 0);
+       
+        fileNameLengthBytes = fileNameLengthBytes.Concat(ReceiveMessageFixedSize(fileNameLength + sizeof(long))).ToArray();
 
-        arrayBufferWriter.Write(ReceiveMessageFixedSize(fileNameLength + sizeof(long)));
-
-        return MessageParser.ParseUploadRequest(arrayBufferWriter.WrittenSpan.ToArray());
+        return MessageParser.ParseUploadRequest(fileNameLengthBytes);
     }
 
     private byte[] ReceiveMessageFixedSize(int size)
@@ -151,7 +148,6 @@ public class ServerSession : Session, IServerSession
     public void SendFinishResponse(FinishResponse finishResponse)
     {
         SendBytes(finishResponse.Serialize());
-        Dispose();
     }
 
     private void SendBytes(byte[] bytes)

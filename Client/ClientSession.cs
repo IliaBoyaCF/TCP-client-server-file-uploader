@@ -74,13 +74,13 @@ public class ClientSession : Session, IClientSession
         {
             throw new Exception("Session is not ready to upload file.");
         }
-        const int bufferSize = 4 * 1024;
+        const int bufferSize = 8 * 1024;
         byte[] buffer = new byte[bufferSize];
         long sentData = 0;
         using Stream fileStream = _fileSystemOperator.GetStream(IFileSystemOperator.Mode.READ);
         while (sentData != _fileSystemOperator.GetFileSize())
         {
-            int readBytes = fileStream.Read(buffer);
+            int readBytes = fileStream.Read(buffer, 0, buffer.Length);
             int currentSentData = 0;
             while (currentSentData != readBytes)
             {
@@ -95,12 +95,14 @@ public class ClientSession : Session, IClientSession
     {
         SelectFileToUpload(_file);
         SendUploadRequest(new UploadRequest(_file.Name, _file.Length));
+        Console.WriteLine("Sending upload request to {0}", _socket.RemoteEndPoint);
         UploadResponse uploadResponse = ReceiveUploadResponse();
         if (uploadResponse.Value != UploadResponse.UploadResponseValue.ACCEPTED)
         {
-            Console.Error.WriteLine("Upload refused by server.");
+            Console.WriteLine("Server refused request with code: {0}", uploadResponse.Value);
             return;
         }
+        Console.WriteLine("Server accepted request\nUploading started.");
         UploadFile();
         FinishResponse finishResponse = ReceiveFinishResponse();
         Console.WriteLine("Uploading finished with {0} status.", finishResponse.Value);

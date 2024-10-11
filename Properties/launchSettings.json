@@ -1,13 +1,11 @@
 {
   "profiles": {
     "NoArgs": {
-      "commandName": "Project",
-      "workingDirectory": "D:\\IDE Projects\\VisualStudio\\client-server\\TCP-client-server-uploader"
+      "commandName": "Project"
     },
     "Server": {
       "commandName": "Project",
-      "commandLineArgs": "-s 30000",
-      "workingDirectory": "D:\\IDE Projects\\VisualStudio\\client-server\\TCP-client-server-uploader"
+      "commandLineArgs": "-s 30000"
     },
     "Client": {
       "commandName": "Project",

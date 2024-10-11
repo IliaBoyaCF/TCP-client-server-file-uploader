@@ -1,7 +1,4 @@
-﻿using ClientServerApp.Protocol;
-using System.Net;
-
-namespace TCP_client_server_uploader.Client;
+﻿namespace TCP_client_server_uploader.Client;
 
 public class EntryPoint
 {

@@ -1,5 +1,5 @@
-﻿using System.Buffers;
-using System.Text;
+﻿using System.Text;
+using System.Buffers;
 
 namespace ClientServerApp.Protocol;
 
@@ -22,11 +22,14 @@ public class UploadRequest : Message
         }
         FileName = fileName;
         FileSize = fileSize;
-        ArrayBufferWriter<byte> arrayBufferWriter = new();
-        arrayBufferWriter.Write(BitConverter.GetBytes((short)fileName.Length).AsSpan());
-        arrayBufferWriter.Write(Encoding.UTF8.GetBytes(fileName).AsSpan());
-        arrayBufferWriter.Write(BitConverter.GetBytes(fileSize).AsSpan());
-        serialized = arrayBufferWriter.WrittenSpan.ToArray();
+        //ArrayBufferWriter<byte> arrayBufferWriter = new();
+        //arrayBufferWriter.Write(BitConverter.GetBytes((short)fileName.Length));
+        //arrayBufferWriter.Write(Encoding.UTF8.GetBytes(fileName));
+        //arrayBufferWriter.Write(BitConverter.GetBytes(fileSize));
+        serialized = serialized.Concat(BitConverter.GetBytes((short)fileName.Length)).ToArray();
+        serialized = serialized.Concat(Encoding.UTF8.GetBytes(fileName)).ToArray();
+        serialized = serialized.Concat(BitConverter.GetBytes(fileSize)).ToArray();
+        //serialized = arrayBufferWriter.WrittenSpan.ToArray();
     }
 
     public bool MeetConstraints(string fileName, long fileSize)

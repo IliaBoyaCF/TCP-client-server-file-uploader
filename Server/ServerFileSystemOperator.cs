@@ -4,6 +4,14 @@ internal class ServerFileSystemOperator : FileSystemOperator
 {
     public static readonly string s_UploadsDirectory = "./uploads/";
     private DriveInfo? _driveInfo;
+
+    public ServerFileSystemOperator()
+    {
+        if (!Directory.Exists(s_UploadsDirectory)) {
+            Directory.CreateDirectory(s_UploadsDirectory);
+        }
+    }
+
     public override void SelectFile(FileInfo fileInfo)
     {
         _fileInfo = new FileInfo(s_UploadsDirectory + fileInfo.Name);
@@ -61,6 +69,8 @@ internal class ServerFileSystemOperator : FileSystemOperator
             throw new InvalidOperationException("No file was open");
         }
         _stream?.Flush();
+
+        _fileInfo.Refresh();
         return _fileInfo.Length;
     }
 
