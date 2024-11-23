@@ -183,10 +183,24 @@ public class ServerSession : Session, IServerSession
         speedometer.Start();
         while (receivedData != request.FileSize)
         {
-            int currentReceivedData = _socket.Receive(buffer);
-            speedometer.GotBytes(currentReceivedData);
-            receivedData += currentReceivedData;
-            fileStream.Write(buffer, 0, currentReceivedData);
+            int availableBufferSize = buffer.Length;
+            while (availableBufferSize > 0 && receivedData != request.FileSize)
+            {
+                int canReceive = _socket.Available;
+                if (canReceive > availableBufferSize)
+                {
+                    canReceive = availableBufferSize;
+                }
+                int currentReceivedData = _socket.Receive(buffer, 0, canReceive, SocketFlags.None);
+                availableBufferSize -= currentReceivedData;
+                speedometer.GotBytes(currentReceivedData);
+                receivedData += currentReceivedData;
+            }
+            if (availableBufferSize > 0)
+            {
+                Array.Resize(ref buffer, buffer.Length - availableBufferSize);
+            }
+            fileStream.Write(buffer, 0, buffer.Length);
         }
         _currentState = IServerSession.State.WAITING_UPLOAD_REQUEST;
         FinishResponse finishResponse = new(_fileSystemOperator.GetFileSize() == request.FileSize ? FinishResponse.FinishResponseValue.SUCCESS : FinishResponse.FinishResponseValue.FAILURE);
